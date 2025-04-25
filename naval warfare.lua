@@ -31,31 +31,7 @@ RunService.RenderStepped:Connect(function()
             createESP(plr.Character, color)
         end
     end
-end)
-
-local Players = game:GetService("Players")
-local lp = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-
-RunService.RenderStepped:Connect(function()
-    local closestEnemy, shortestDistance = nil, math.huge
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= lp and player.Team ~= lp.Team and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local distance = (player.Character.HumanoidRootPart.Position - lp.Character.HumanoidRootPart.Position).Magnitude
-            if distance < shortestDistance then
-                shortestDistance = distance
-                closestEnemy = player
-            end
-        end
-    end
-
-    if closestEnemy then
-        local char = lp.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            char.HumanoidRootPart.CFrame = CFrame.lookAt(char.HumanoidRootPart.Position, closestEnemy.Character.HumanoidRootPart.Position)
-        end
-    end
-end) 
+end)  
 
 local lp = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
