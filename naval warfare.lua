@@ -33,45 +33,40 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-local autoAim = false
-local btn = Instance.new("TextButton")
-btn.Text = "Auto Aim: OFF"
-btn.Size = UDim2.new(0, 140, 0, 40)
-btn.Position = UDim2.new(0.01, 0, 0.1, 0)
-btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-btn.TextColor3 = Color3.new(1, 1, 1)
-btn.Parent = game.CoreGui or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
-btn.MouseButton1Click:Connect(function()
-    autoAim = not autoAim
-    btn.Text = "Auto Aim: " .. (autoAim and "ON" or "OFF")
-end)
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    if not autoAim then return end
-    for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= lp and plr.Team ~= lp.Team and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            lp.Character.HumanoidRootPart.CFrame = CFrame.lookAt(lp.Character.HumanoidRootPart.Position, plr.Character.HumanoidRootPart.Position)
-            break
-        end
-    end
-end)
-
-spawn(function()
-    while true do
-        local char = lp.Character
-        if char then
-            for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("VehicleSeat") or part:IsA("BasePart") then
-                    if part:FindFirstChild("MaxSpeed") then
-                        part.MaxSpeed = part.MaxSpeed * 3
-                    end
-                    if part:FindFirstChild("Throttle") then
-                        part.Throttle = part.Throttle * 3
-                    end
-                end
+RunService.RenderStepped:Connect(function()
+    local closestEnemy, shortestDistance = nil, math.huge
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= lp and player.Team ~= lp.Team and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (player.Character.HumanoidRootPart.Position - lp.Character.HumanoidRootPart.Position).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestEnemy = player
             end
         end
-        wait(1)
+    end
+
+    if closestEnemy then
+        local char = lp.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            char.HumanoidRootPart.CFrame = CFrame.lookAt(char.HumanoidRootPart.Position, closestEnemy.Character.HumanoidRootPart.Position)
+        end
+    end
+end) 
+
+local lp = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+RunService.Heartbeat:Connect(function()
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Velocity.Magnitude > 5 then
+                part.Velocity = part.Velocity * 3
+            end
+        end
     end
 end)
